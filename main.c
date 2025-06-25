@@ -1,33 +1,8 @@
-/* USER CODE BEGIN Header */
-/**
-  ******************************************************************************
-  * @file           : main.c
-  * @brief          : Main program body
-  ******************************************************************************
-  * @attention
-  *
-  * Copyright (c) 2025 STMicroelectronics.
-  * All rights reserved.
-  *
-  * This software is licensed under terms that can be found in the LICENSE file
-  * in the root directory of this software component.
-  * If no LICENSE file comes with this software, it is provided AS-IS.
-  *
-  ******************************************************************************
-  */
-/* USER CODE END Header */
-/* Includes ------------------------------------------------------------------*/
 #include "main.h"
 #include "cmsis_os.h"
-
-/* Private includes ----------------------------------------------------------*/
-/* USER CODE BEGIN Includes */
 #include "string.h"
 #include "stdio.h"
-/* USER CODE END Includes */
 
-/* Private typedef -----------------------------------------------------------*/
-/* USER CODE BEGIN PTD */
 typedef struct{
 	GPIO_TypeDef *port;
 	uint16_t pin;
@@ -39,19 +14,7 @@ LedTaskParams Led2Params = {GPIOC, GPIO_PIN_9, 1000};
 
 int task_index = 0;
 char dizi[32];
-/* USER CODE END PTD */
 
-/* Private define ------------------------------------------------------------*/
-/* USER CODE BEGIN PD */
-
-/* USER CODE END PD */
-
-/* Private macro -------------------------------------------------------------*/
-/* USER CODE BEGIN PM */
-
-/* USER CODE END PM */
-
-/* Private variables ---------------------------------------------------------*/
 UART_HandleTypeDef huart1;
 
 /* Definitions for LedTask */
@@ -61,7 +24,6 @@ const osThreadAttr_t LedTask_attributes = {
   .stack_size = 128 * 4,
   .priority = (osPriority_t) osPriorityNormal,
 };
-/* USER CODE BEGIN PV */
 
 // create and define UARTTask
 osThreadId_t UARTTaskHandle;
@@ -70,112 +32,40 @@ const osThreadAttr_t UARTTask_attributes = {
 		.stack_size = 128 * 4,
 		.priority = (osPriority_t) osPriorityAboveNormal,
 };
-/* USER CODE END PV */
 
-/* Private function prototypes -----------------------------------------------*/
+
 void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
 static void MX_USART1_UART_Init(void);
 void StartLedTask(void *argument);
 
-/* USER CODE BEGIN PFP */
-
 // UARTTask function
 void StartUARTTask(void *argument);
-/* USER CODE END PFP */
 
-/* Private user code ---------------------------------------------------------*/
-/* USER CODE BEGIN 0 */
-
-/* USER CODE END 0 */
-
-/**
-  * @brief  The application entry point.
-  * @retval int
-  */
 int main(void)
 {
-
-  /* USER CODE BEGIN 1 */
-
-  /* USER CODE END 1 */
-
-  /* MCU Configuration--------------------------------------------------------*/
-
-  /* Reset of all peripherals, Initializes the Flash interface and the Systick. */
-	HAL_Init();
-
-  /* USER CODE BEGIN Init */
-
-  /* USER CODE END Init */
-
-  /* Configure the system clock */
+  HAL_Init();
   SystemClock_Config();
-
-  /* USER CODE BEGIN SysInit */
-
-  /* USER CODE END SysInit */
-
-  /* Initialize all configured peripherals */
   MX_GPIO_Init();
   MX_USART1_UART_Init();
-  /* USER CODE BEGIN 2 */
-
-  /* USER CODE END 2 */
-
-  /* Init scheduler */
-  osKernelInitialize();
-
-  /* USER CODE BEGIN RTOS_MUTEX */
-  /* add mutexes, ... */
-  /* USER CODE END RTOS_MUTEX */
-
-  /* USER CODE BEGIN RTOS_SEMAPHORES */
-  /* add semaphores, ... */
-  /* USER CODE END RTOS_SEMAPHORES */
-
-  /* USER CODE BEGIN RTOS_TIMERS */
-  /* start timers, add new ones, ... */
-  /* USER CODE END RTOS_TIMERS */
-
-  /* USER CODE BEGIN RTOS_QUEUES */
-  /* add queues, ... */
-  /* USER CODE END RTOS_QUEUES */
+  
+   osKernelInitialize();
 
   /* Create the thread(s) */
   /* creation of LedTask */
   LedTask1Handle = osThreadNew(StartLedTask, &Led1Params, &LedTask_attributes);
   LedTask2Handle = osThreadNew(StartLedTask, &Led2Params, &LedTask_attributes);
-
-  /* USER CODE BEGIN RTOS_THREADS */
-  /* add threads, ... */
+	
   UARTTaskHandle = osThreadNew(StartUARTTask, NULL, &UARTTask_attributes);
-  /* USER CODE END RTOS_THREADS */
 
-  /* USER CODE BEGIN RTOS_EVENTS */
-  /* add events, ... */
-  /* USER CODE END RTOS_EVENTS */
-
-  /* Start scheduler */
   osKernelStart();
 
-  /* We should never get here as control is now taken by the scheduler */
-
-  /* Infinite loop */
-  /* USER CODE BEGIN WHILE */
   while (1)
   {
-    /* USER CODE END WHILE */
 
-    /* USER CODE BEGIN 3 */
   }
-  /* USER CODE END 3 */
 }
 
-/**
-  * @brief System Clock Configuration
-  * @retval None
-  */
 void SystemClock_Config(void)
 {
   RCC_OscInitTypeDef RCC_OscInitStruct = {0};
@@ -281,7 +171,6 @@ static void MX_GPIO_Init(void)
   /* USER CODE END MX_GPIO_Init_2 */
 }
 
-/* USER CODE BEGIN 4 */
 void StartUARTTask(void *argument){
 	while(1){
 		uint8_t message[] = "Hello freeRTOS UART Task\n";
@@ -294,33 +183,21 @@ void StartUARTTask(void *argument){
 			HAL_UART_Transmit(&huart1, (uint8_t *)"THREAD SUSPEND\n", strlen("THREAD SUSPEND\n"), HAL_MAX_DELAY);
 			osThreadSuspend(UARTTaskHandle);
 		}
-		osDelay(1000);
+		osDelay(1000); // cpu sleep
 	}
 }
-/* USER CODE END 4 */
-
-/* USER CODE BEGIN Header_StartLedTask */
-/**
-  * @brief  Function implementing the LedTask thread.
-  * @param  argument: Not used
-  * @retval None
-  */
-/* USER CODE END Header_StartLedTask */
 void StartLedTask(void *argument)
 {
-  /* USER CODE BEGIN 5 */
 	LedTaskParams *params = (LedTaskParams *) argument;
-  /* Infinite loop */
   for(;;)
   {
 	  if(task_index == 7){
 		  HAL_GPIO_TogglePin(params -> port, params -> pin);
 		  osDelay(params -> msDelay);
 	  }else
-		  osDelay(100);
+		  osDelay(100); // cpu sleep
 
   }
-  /* USER CODE END 5 */
 }
 
 /**
