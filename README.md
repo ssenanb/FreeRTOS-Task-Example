@@ -1,4 +1,4 @@
-# freeRTOS-Task Example
+# FreeRTOS-Task Example
 
 ## Amaç
 Bu proje, STM32 ve FreeRTOS kullanılarak task oluşturma, task parametre gönderimi ve task suspend işlemlerini öğrenmek amacıyla geliştirilmiştir.
